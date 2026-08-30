@@ -1,5 +1,8 @@
 import Fastify from "fastify";
-//import routes from 'routes/routes';
+import Postgres from "@fastify/postgres";
+
+import authRoutes from './routes/auth/index.ts';
+import itemRoutes from './routes/items/index.ts';
 
 //Added (pretty) logger to fastify instance
 const fastify = Fastify({
@@ -10,12 +13,16 @@ const fastify = Fastify({
     }
 });
 
-//fastify.register(routes)
+fastify.register(Postgres, { connectionString: process.env.DB_URL });
+
+fastify.register(authRoutes, { prefix: '/auth'});
+fastify.register(itemRoutes, { prefix: '/items'});
 
 //To start the server -> server.listen() + port
 async function start() {
     await fastify.listen({
-        port:3000
+        port:3000,
+        host: '0.0.0.0'
     })
 }
 
