@@ -9,9 +9,9 @@ async function itemRoutes (fastify) {
 
   fastify.post('/', async (request, reply) => {
     await validateApiKey(request, reply);
-    const { body } = request.body;
+    const { userId, name, description, date } = request.body;
 
-    const { rows } = await fastify.pg.query('INSERT INTO items (author, name, description, date) VALUES ($1, $2, $3, $4)', [body.userId, body.name, body.description, body.date]);
+    const { rows } = await fastify.pg.query('INSERT INTO items (author, name, description, date) VALUES ($1, $2, $3, $4) RETURNING *', [userId, name, description, date]);
     return rows;
   });
 

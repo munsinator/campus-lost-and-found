@@ -3,7 +3,7 @@ import { validateApiKey } from "../../hooks/validateApiKey.ts";
 async function authRoutes (fastify) {
   
   fastify.post('/', async (request, reply) => {
-    const { response } = await fastify.pg.query('INSERT INTO users (is_valid) VALUES (true)');
+    const { response } = await fastify.pg.query('INSERT INTO users (is_valid) VALUES (true) RETURNING *');
     return response;
   })
 
@@ -16,7 +16,7 @@ async function authRoutes (fastify) {
       `UPDATE users
       SET api_key = gen_random_uuid()
       WHERE api_key = $1
-      RETURNING api_key`, [apiKey]
+      RETURNING *`, [apiKey]
     );
     
     return rows;

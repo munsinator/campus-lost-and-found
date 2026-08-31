@@ -13,7 +13,17 @@ const fastify = Fastify({
     }
 });
 
-fastify.register(Postgres, { connectionString: process.env.DB_URL });
+fastify.register(Postgres, {  
+
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    ssl: {
+        rejectUnauthorized: false
+    } 
+});
 
 fastify.register(authRoutes, { prefix: '/auth'});
 fastify.register(itemRoutes, { prefix: '/items'});
