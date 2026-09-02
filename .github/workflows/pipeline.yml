@@ -1,22 +1,17 @@
-stages:
-  - build
-  - test
-
-demo-job-build-code:
-  stage: build
-  script:
-    - echo "Running demo for checking Ruby version and executing Ruby files"
-    - ruby -v
-    - rake
-
-demo-test-code-job-first:
-  stage: test
-  script:
-    - echo "If the demo files got built properly, test the build through test files"
-    - rake test1
-
-demo-test-code-job-second:
-  stage: test
-  script:
-    - echo "If the demo built went through, test it with some more test files"
-    - rake test2
+name: Demo GitHub Actions Workflow
+on: [push]
+jobs:
+ Discover-GitHub-Actions-Workflows:
+   runs-on: ubuntu-latest
+   steps:
+     - run: echo "${{ github.event_name }} event automatically triggered this job."
+     - run: echo "A ${{ runner.os }} server hosted by GitHub has this job running"
+     - run: echo "Details of your repository: repo-name: ${{ github.repository }} and branch name is ${{ github.ref }} and your repository is ${{ github.repository }}."
+     - name: Checking out the repository's code
+       uses: actions/checkout@v3
+     - run: echo "The runner has cloned your ${{ github.repository }} repository."
+     - run: echo "The workflow can now test your code with the runner."
+     - name: List files in the repository
+       run: |
+         ls ${{ github.workspace }}
+     - run: echo "This job has a ${{ job.status }} status."
