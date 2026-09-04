@@ -1,17 +1,53 @@
-name: Demo GitHub Actions Workflow
+name: Lost & Found Pipeline
+#run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
+
 jobs:
- Discover-GitHub-Actions-Workflows:
-   runs-on: ubuntu-latest
-   steps:
-     - run: echo "${{ github.event_name }} event automatically triggered this job."
-     - run: echo "A ${{ runner.os }} server hosted by GitHub has this job running"
-     - run: echo "Details of your repository: repo-name: ${{ github.repository }} and branch name is ${{ github.ref }} and your repository is ${{ github.repository }}."
-     - name: Checking out the repository's code
-       uses: actions/checkout@v3
-     - run: echo "The runner has cloned your ${{ github.repository }} repository."
-     - run: echo "The workflow can now test your code with the runner."
-     - name: List files in the repository
-       run: |
-         ls ${{ github.workspace }}
-     - run: echo "This job has a ${{ job.status }} status."
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v6
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+  
+  build:
+    name: Building the app
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+  
+  deliver:
+    if: github.ref == 'refs/heads/deploy/production'
+    name: Push to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+
+  deploy:
+    if: github.ref == 'refs/heads/deploy/production'
+    name: Deploy image to AWS
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+
+  e2e-and-performance:
+    if: github.ref == 'refs/heads/deploy/production'
+    name: E2E and performance tests against stagings
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
