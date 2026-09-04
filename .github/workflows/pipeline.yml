@@ -1,6 +1,6 @@
 name: Lost & Found Pipeline
 #run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+on: push
 
 jobs:
   lint:
@@ -26,6 +26,7 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
   
   build:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/deploy/production'
     name: Building the app
     runs-on: ubuntu-latest
     steps:
