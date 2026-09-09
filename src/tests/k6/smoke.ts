@@ -11,7 +11,7 @@ export const options: Options = {
   }
 };
 
-export default function (): void {
+export default function smokeTest(): void {
   const response = http.get(`${__ENV.BASE_URL}/items/`);
 
   check(response, {

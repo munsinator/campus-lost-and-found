@@ -21,12 +21,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Scan with SonarQube
-        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
       - name: Scan dependencies with Snyk
         uses: snyk/actions/node@v1.0.0
         with:
@@ -40,6 +34,13 @@ jobs:
           command: code test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Scan with SonarQube
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
   test:
     name: Testing
     runs-on: ubuntu-latest
@@ -220,6 +221,7 @@ jobs:
             CONTAINER=$(docker compose ps -q "$COLOR")
             docker cp "$CONTAINER:/app/src/tests/k6/." tests/k6/
             docker run --rm --network host -v "$PWD/tests/k6:/tests:ro" -e "BASE_URL=http://127.0.0.1:$PORT" grafana/k6:latest run /tests/smoke.ts
+            docker run --rm --network host -v "$PWD/tests/k6:/tests:ro" -e "BASE_URL=http://127.0.0.1:$PORT" -e SEARCH_ENABLED=true grafana/k6:latest run /tests/e2e.ts
             docker run --rm --network host -v "$PWD/tests/k6:/tests:ro" -e "BASE_URL=http://127.0.0.1:$PORT" grafana/k6:latest run /tests/performance.ts
 
             echo "Tests fuer Version $TAG auf $COLOR erfolgreich. Manuell auf Port $PORT umschalten."
