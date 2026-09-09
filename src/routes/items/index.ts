@@ -29,9 +29,15 @@ async function itemRoutes (fastify) {
     let searchCondition = '';
     const values = [limit, offset];
 
-    if (search && search.trim()) { // Check if search is not empty or just whitespace
-      searchCondition = 'WHERE (name ILIKE $3 OR description ILIKE $3)';
-      values.push(`%${search.trim()}%`);
+    if (search && search.trim()) {
+      const flags = await posthog.evaluateFlags('public-api', {
+        sendFeatureFlagEvents: false
+      });
+
+      if (flags.isEnabled('item-search')) {
+        searchCondition = 'WHERE (name ILIKE $3 OR description ILIKE $3)';
+        values.push(`%${search.trim()}%`);
+      }
     }
 
     const { rows } = await fastify.pg.query(
