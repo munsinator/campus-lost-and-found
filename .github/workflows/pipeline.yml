@@ -62,7 +62,7 @@ jobs:
         run: docker build -t lost-and-found-api:${{ github.sha }} .
 
       - name: Save Docker image
-        run: docker save lost-and-found-api:${{ github.sha }}
+        run: docker save -o image.tar lost-and-found-api:${{ github.sha }}
 
       - name: Upload Docker image
         if: github.ref == 'refs/heads/deploy/production'
