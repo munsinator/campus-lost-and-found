@@ -60,14 +60,48 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t lost-and-found-api:${{ github.sha }} .
+
+      - name: Save Docker image
+        run: docker save lost-and-found-api:${{ github.sha }}
+
+      - name: Upload Docker image
+        if: github.ref == 'refs/heads/deploy/production'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lost-and-found-api-image
+          path: image.tar
   
   deliver:
-    if: github.ref == 'refs/heads/deploy/production'
     name: Push to Docker Hub
     runs-on: ubuntu-latest
     needs: build
+    if: github.ref == 'refs/heads/deploy/production'
+
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: lost-and-found-api-image
+
+      - name: Load Docker image
+        run: docker load -i image.tar
+
+      - name: Login to Docker Hub
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+
+      - name: Tag Docker image
+        run: |
+          docker tag lost-and-found-api:${{ github.sha }} \
+            "$DOCKERHUB_USERNAME/lost-and-found-api:${{ github.sha }}"
+
+      - name: Push Docker image
+        run: docker push "$DOCKERHUB_USERNAME/lost-and-found-api:${{ github.sha }}"
 
   deploy:
     if: github.ref == 'refs/heads/deploy/production'
