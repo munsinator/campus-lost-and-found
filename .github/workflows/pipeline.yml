@@ -1,0 +1,86 @@
+name: Lost & Found Pipeline
+#run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: push
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  
+          
+      - name: Scan with SonarQube
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      
+      - name: Scan dependencies with Snyk
+        uses: snyk/actions/node@v1.0.0
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Scan code with Snyk
+        uses: snyk/actions/node@v1.0.0
+        with:
+          command: code test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test -- --runInBand
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage
+          path: coverage/
+  
+  build:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/deploy/production'
+    name: Building the app
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t lost-and-found-api:${{ github.sha }} .
+  
+  deliver:
+    if: github.ref == 'refs/heads/deploy/production'
+    name: Push to Docker Hub
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+
+  deploy:
+    if: github.ref == 'refs/heads/deploy/production'
+    name: Deploy image to AWS
+    runs-on: ubuntu-latest
+    needs: deliver
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+
+  e2e-and-performance:
+    if: github.ref == 'refs/heads/deploy/production'
+    name: E2E and performance tests against stagings
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
