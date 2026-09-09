@@ -59,10 +59,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t lost-and-found-api:${{ github.sha }} .
+        run: docker build -t lost-and-found-api:${{ github.run_number }} .
 
       - name: Save Docker image
-        run: docker save -o image.tar lost-and-found-api:${{ github.sha }}
+        run: docker save -o image.tar lost-and-found-api:${{ github.run_number }}
 
       - name: Upload Docker image
         if: github.ref == 'refs/heads/deploy/production'
@@ -97,11 +97,10 @@ jobs:
 
       - name: Tag Docker image
         run: |
-          docker tag lost-and-found-api:${{ github.sha }} \
-            "$DOCKERHUB_USERNAME/lost-and-found-api:${{ github.sha }}"
+          docker tag lost-and-found-api:${{ github.run_number }} "$DOCKERHUB_USERNAME/lost-and-found-api:${{ github.run_number }}"
 
       - name: Push Docker image
-        run: docker push "$DOCKERHUB_USERNAME/lost-and-found-api:${{ github.sha }}"
+        run: docker push "$DOCKERHUB_USERNAME/lost-and-found-api:${{ github.run_number }}"
 
   deploy:
     if: github.ref == 'refs/heads/deploy/production'
