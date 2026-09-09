@@ -1,6 +1,6 @@
 CREATE TABLE users (
   user_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  api_key uuid DEFAULT gen_random_uuid(),
+  api_key_hash TEXT NOT NULL UNIQUE,
   is_valid BOOLEAN
 );
 
