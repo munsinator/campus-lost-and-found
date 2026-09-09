@@ -34,7 +34,7 @@ export default function e2eTest(): void {
   check(key, { 'neuer Key unterscheidet sich': (value) => !!value && value !== oldKey });
 
   const headers = { Authorization: key, 'Content-Type': 'application/json' };
-  const marker = `k6-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const marker = `k6-${registration.json('userId')}`;
   const body = JSON.stringify({ name: marker, description: 'E2E Testgegenstand', date: '2026-09-10' });
 
   // 2. Eigenen Testgegenstand erstellen; im finally-Block wieder entfernen.
