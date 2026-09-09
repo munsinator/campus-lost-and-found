@@ -29,14 +29,16 @@ async function itemRoutes (fastify) {
     let searchCondition = '';
     const values = [limit, offset];
 
-    if (search && search.trim()) {
+    if (typeof search === 'string' && search.trim() !== '') {
+      const searchText = search.trim();
+
       const flags = await posthog.evaluateFlags('public-api', {
         sendFeatureFlagEvents: false
       });
 
       if (flags.isEnabled('item-search')) {
         searchCondition = 'WHERE (name ILIKE $3 OR description ILIKE $3)';
-        values.push(`%${search.trim()}%`);
+        values.push(`%${searchText}%`);
       }
     }
 
