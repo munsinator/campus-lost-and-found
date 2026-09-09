@@ -9,6 +9,8 @@ CREATE TABLE items (
   author uuid NOT NULL,
   name VARCHAR(255) NOT NULL,
   description VARCHAR(255) NOT NULL,
-  date DATE NOT NULL, 
+  date DATE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_user_id FOREIGN KEY(author) REFERENCES users(user_id) ON DELETE CASCADE
 );
