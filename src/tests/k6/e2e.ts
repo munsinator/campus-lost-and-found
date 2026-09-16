@@ -11,7 +11,7 @@ export const options: Options = {
 // Stoppen, wenn ein notwendiger Schritt fehlschlaegt.
 function expectStatus(response, status: number, message: string): void {
   if (!check(response, { [message]: (r) => r.status === status })) {
-    fail(message);
+    fail(`${message}; erhalten: ${response.status}; Antwort: ${response.body}`);
   }
 }
 
@@ -85,7 +85,9 @@ export default function e2eTest(): void {
     });
   } finally {
     // Nur unseren eigenen Gegenstand loeschen, auch nach einem Testfehler.
-    expectStatus(http.del(`${base}/items/${itemId}`, null, { headers }), 204, 'Testitem loeschen: 204');
+    expectStatus(http.del(`${base}/items/${itemId}`, null, {
+      headers: { Authorization: key }
+    }), 204, 'Testitem loeschen: 204');
   }
 
   expectStatus(http.get(`${base}/items/${itemId}`), 404, 'Geloeschtes Item nicht mehr vorhanden: 404');
