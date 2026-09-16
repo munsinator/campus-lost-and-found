@@ -1,15 +1,5 @@
 name: Lost & Found Pipeline
-#run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: push
-
-# Keep the whole production pipeline sequential, including the test/switch job.
-# A newer push must not interrupt an EC2 command that is still running.
-concurrency:
-  group: lost-and-found-${{ github.ref }}
-  cancel-in-progress: false
-
-permissions:
-  contents: read
 
 jobs:
   lint:
