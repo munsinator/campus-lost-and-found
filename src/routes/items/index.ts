@@ -2,7 +2,6 @@ import { validateApiKey } from "../../utils/apiKey.ts";
 import { posthog } from '../../utils/posthog.ts';
 
 async function itemRoutes (fastify) {
-  fastify.decorateRequest('userId', null); //To have a place to store the authenticated user's ID with each request
 
   fastify.get('/', { 
     schema: {
@@ -32,7 +31,7 @@ async function itemRoutes (fastify) {
     if (typeof search === 'string' && search.trim() !== '') {
       const searchText = search.trim();
 
-      const flags = await posthog.evaluateFlags(request.userId);
+      const flags = await posthog.evaluateFlags('global-id');
 
       if (flags.isEnabled('item-search')) {
         searchCondition = 'WHERE (name ILIKE $3 OR description ILIKE $3)';
