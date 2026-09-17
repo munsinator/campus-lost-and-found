@@ -47,7 +47,7 @@ test('creates a key and sends only its hash to the database', async () => {
 
 test('rotation rejects a missing key without querying the database', async () => {
   const response = await app.inject({ method: 'PUT', url: '/auth/' });
-  expect(response.statusCode).toBe(401);
+  expect(response.statusCode).toBe(402);
   expect(query).not.toHaveBeenCalled();
 });
 
