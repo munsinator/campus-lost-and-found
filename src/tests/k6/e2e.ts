@@ -22,7 +22,7 @@ export default function e2eTest(): void {
     fail('BASE_URL und SEARCH_ENABLED=true oder false angeben');
   }
 
-  // 1. Key erstellen und rotieren.
+  //Key erstellen und rotieren.
   const registration = http.post(`${base}/auth/`);
   expectStatus(registration, 201, 'API-Key erstellen: 201');
   const oldKey = registration.json('apiKey') as string;
@@ -37,14 +37,14 @@ export default function e2eTest(): void {
   const marker = `k6-${registration.json('userId')}`;
   const body = JSON.stringify({ name: marker, description: 'E2E Testgegenstand', date: '2026-09-10' });
 
-  // 2. Eigenen Testgegenstand erstellen; im finally-Block wieder entfernen.
+  //Testgegenstand erstellen; im finally-Block wieder entfernen.
   const created = http.post(`${base}/items/`, body, { headers });
   expectStatus(created, 201, 'Item erstellen: 201');
   const itemId = created.json('item_id') as string;
   if (!itemId) fail('Item-ID fehlt');
 
   try {
-    // 3. Ohne Key lesen, mit neuem Key bearbeiten.
+    //Ohne Key lesen, mit neuem Key bearbeiten.
     const read = http.get(`${base}/items/${itemId}`);
     expectStatus(read, 200, 'Item oeffentlich lesen: 200');
     check(read, { 'gespeicherter Name stimmt': (r) => r.json('name') === marker });
@@ -55,7 +55,7 @@ export default function e2eTest(): void {
     expectStatus(reread, 200, 'Bearbeitetes Item lesen: 200');
     check(reread, { 'Aenderung gespeichert': (r) => r.json('description') === 'Bearbeitet' });
 
-    // 4. Fehlender und alter Key duerfen nicht schreiben.
+    //Fehlender und alter Key dürfen nicht schreiben.
     expectStatus(http.put(`${base}/items/${itemId}`, body, {
       headers: { 'Content-Type': 'application/json' }
     }), 401, 'Schreiben ohne Key abgelehnt: 401');
@@ -63,8 +63,8 @@ export default function e2eTest(): void {
       headers: { Authorization: oldKey, 'Content-Type': 'application/json' }
     }), 401, 'Alter Key ungueltig: 401');
 
-    // 5. Flag an: eigener Treffer + keine Treffer fuer einen unbekannten Begriff.
-    // Flag aus: der unbekannte Suchbegriff wird ignoriert, die Liste bleibt gefuellt.
+    // Flag an: eigener Treffer + keine Treffer für einen unbekannten Begriff.
+    // Flag aus: der unbekannte Suchbegriff wird ignoriert, die Liste bleibt gefüllt.
     const search = http.get(`${base}/items/?search=${marker}`);
     expectStatus(search, 200, 'Suche antwortet: 200');
     if (searchEnabled === 'true') {
@@ -84,10 +84,10 @@ export default function e2eTest(): void {
       }
     });
   } finally {
-    // Nur unseren eigenen Gegenstand loeschen, auch nach einem Testfehler.
+    // Nur unseren eigenen Gegenstand löschen, auch nach einem Testfehler.
     expectStatus(http.del(`${base}/items/${itemId}`, null, {
       headers: { Authorization: key }
-    }), 204, 'Testitem loeschen: 204');
+    }), 204, 'Testitem löschen: 204');
   }
 
   expectStatus(http.get(`${base}/items/${itemId}`), 404, 'Geloeschtes Item nicht mehr vorhanden: 404');
